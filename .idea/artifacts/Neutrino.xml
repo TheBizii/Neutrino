@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Neutrino">
+    <output-path>$PROJECT_DIR$/../../../Byepixel server/plugins</output-path>
+    <root id="archive" name="Neutrino.jar">
+      <element id="module-output" name="Neutrino" />
+    </root>
+  </artifact>
+</component>
