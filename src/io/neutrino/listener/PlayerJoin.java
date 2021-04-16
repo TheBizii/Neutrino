@@ -12,8 +12,6 @@ public class PlayerJoin implements Listener {
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         NeutrinoProfile profile = new NeutrinoProfile(p.getUniqueId());
-        if(!profile.exists()) {
-            profile.save();
-        }
+        profile.save();
     }
 }

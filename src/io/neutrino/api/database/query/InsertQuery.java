@@ -2,6 +2,7 @@ package io.neutrino.api.database.query;
 
 import io.neutrino.Neutrino;
 
+import javax.annotation.Nonnull;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,9 +15,8 @@ public class InsertQuery {
     private List<String> columns = new ArrayList<>();
     private List<Object> values = new ArrayList<>();
 
-    public InsertQuery into(String tableName) {
+    public InsertQuery(@Nonnull String tableName) {
         this.tableName = tableName;
-        return this;
     }
 
     public InsertQuery columns(String... columnNames) {
@@ -49,7 +49,7 @@ public class InsertQuery {
             }
             sb = new StringBuilder(sb.substring(0, sb.length() - 2));
         }
-        sb.append(" VALUES (");
+        sb.append(") VALUES (");
         if(values.size() != 0) {
             for(int i = 0; i < values.size(); i++) {
                 sb.append("?, ");

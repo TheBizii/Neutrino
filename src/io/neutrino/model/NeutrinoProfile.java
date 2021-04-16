@@ -1,9 +1,9 @@
 package io.neutrino.model;
 
 import io.neutrino.Neutrino;
+import io.neutrino.api.database.ComparisonOperator;
 import io.neutrino.api.database.DatabaseModel;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class NeutrinoProfile extends DatabaseModel {
 
-    private UUID uuid;
+    private String uuid;
 
     public NeutrinoProfile() {
         uuid = null;
@@ -22,19 +22,19 @@ public class NeutrinoProfile extends DatabaseModel {
     }
 
     public NeutrinoProfile(UUID uuid) {
-        this.uuid = uuid;
+        this.uuid = uuid.toString();
         created = LocalDateTime.now();
         updated = created;
         active = true;
-        load();
+        loadBy("uuid", this.uuid);
     }
 
-    public UUID getUUID() {
+    public String getUUID() {
         return uuid;
     }
 
     private void setUUID(String uuid) {
-        this.uuid = UUID.fromString(uuid);
+        this.uuid = uuid;
     }
 
     @Override
@@ -52,40 +52,33 @@ public class NeutrinoProfile extends DatabaseModel {
     }
 
     @Override
-    public void save() {
-        if (exists()) {
-            update();
-        } else {
-            insert();
-        }
-    }
-
-    @Override
     protected void insert() {
         Neutrino.getInstance().getQueryBuilder()
-                .insert()
-                .columns("uuid", "created", "active")
-                .values(uuid, created, active)
+                .insertInto(getTableName())
+                .columns("uuid", "created", "updated", "active")
+                .values(uuid, created, updated, active)
                 .execute();
     }
 
     @Override
     protected void update() {
         updated = LocalDateTime.now();
-        /*String qry = "UPDATE neutrino_profile " +
-                "SET " +
-                "updated = '" + updated + "', " +
-                "active = " + active + " " +
-                "WHERE " +
-                "uuid = '" + uuid + "'";
-        Neutrino.getInstance().getDatabase().execute(qry);*/
+        Neutrino.getInstance().getQueryBuilder()
+                .update(getTableName())
+                .set("updated", updated)
+                .set("active", active)
+                .where("id", ComparisonOperator.EQUALS, getID())
+                .execute();
     }
 
     @Override
     public boolean exists() {
+        ResultSet rs = Neutrino.getInstance().getQueryBuilder()
+                .select("COUNT(*)")
+                .from(getTableName())
+                .where("uuid", ComparisonOperator.EQUALS, uuid)
+                .execute();
         if (getID() == 0) {
-            String qry = "SELECT COUNT(*) FROM neutrino_profile WHERE uuid = '" + uuid + "'";
-            ResultSet rs = Neutrino.getInstance().getDatabase().executeAndReturn(qry);
             try {
                 if (rs.next()) {
                     return rs.getInt(1) > 0;
@@ -98,10 +91,12 @@ public class NeutrinoProfile extends DatabaseModel {
         return true;
     }
 
-    @Override
-    public void load() {
-        String qry = "SELECT id, created, updated, active FROM neutrino_profile WHERE uuid = '" + uuid + "'";
-        ResultSet rs = Neutrino.getInstance().getDatabase().executeAndReturn(qry);
+    public void loadBy(String key, Object value) {
+        ResultSet rs = Neutrino.getInstance().getQueryBuilder()
+                .select("id", "created", "updated", "active")
+                .from(getTableName())
+                .where(key, ComparisonOperator.EQUALS, value)
+                .execute();
         try {
             if (rs.next()) {
                 setID(rs.getInt(1));

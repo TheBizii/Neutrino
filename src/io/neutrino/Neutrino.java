@@ -60,18 +60,22 @@ public class Neutrino extends JavaPlugin {
     }
 
     public void logSuccess(String message) {
-        console.sendMessage("§b§lNEUTRINO §r§7>> §a" + message);
+        console.sendMessage(getPrefix() + "§a" + message);
     }
 
     public void logError(String message) {
-        console.sendMessage("§b§lNEUTRINO §r§7>> §c" + message);
+        console.sendMessage(getPrefix() + "§c" + message);
     }
 
     public void log(String message) {
-        console.sendMessage("§b§lNEUTRINO §r§7>> §7" + message);
+        console.sendMessage(getPrefix() + "§7" + message);
     }
 
     public void logWarning(String message) {
-        console.sendMessage("§b§lNEUTRINO §r§7>> §e" + message);
+        console.sendMessage(getPrefix() + "§e" + message);
+    }
+
+    public String getPrefix() {
+        return "§b§lNEUTRINO §r§7>> ";
     }
 }

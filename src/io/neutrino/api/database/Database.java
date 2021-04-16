@@ -36,7 +36,7 @@ public class Database {
         }
     }
 
-    public boolean isConnected() {
+    private boolean isConnected() {
         try {
             return con != null && !con.isClosed();
         } catch (SQLException e) {
@@ -70,7 +70,7 @@ public class Database {
         Neutrino neutrino = Neutrino.getInstance();
         connect();
         neutrino.log(preparedStatement.toString());
-        if(neutrino.getDatabase().isConnected()) {
+        if(isConnected()) {
             try {
                 preparedStatement.execute();
             } catch (SQLException e) {
@@ -80,17 +80,20 @@ public class Database {
             neutrino.logError("Something went wrong while establishing a connection with database. Fix the error and retry.");
         }
 
-        neutrino.getDatabase().disconnect();
+        disconnect();
     }
 
-    public ResultSet executeAndReturn(String qry) {
+    public ResultSet executeAndReturn(PreparedStatement preparedStatement) {
+        Neutrino neutrino = Neutrino.getInstance();
         connect();
+        neutrino.log(preparedStatement.toString());
         try {
-            final PreparedStatement ps = con.prepareStatement(qry);
-            return ps.executeQuery();
+            return preparedStatement.executeQuery();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
+        disconnect();
         return null;
     }
 }

@@ -36,13 +36,22 @@ public abstract class DatabaseModel {
     }
 
     public abstract void createTable();
-    public abstract void save();
     public abstract boolean exists();
-    public abstract void load();
     protected abstract void insert();
     protected abstract void update();
+
+    public void save() {
+        if(exists()) {
+            update();
+        } else {
+            insert();
+        }
+    }
+
     public void delete() {
         active = false;
         update();
     }
+
+    public void loadBy(String key, Object value) {}
 }
